@@ -1,6 +1,6 @@
-# A Unitree Z1 (without its gripper) in a MuJoCo scene, e.g., the model of cpp-interface-mujoco-robots:
-#   <cpp-interface-mujoco-robots>/models/unitree_z1/z1.xml
-# The scene is given to the launch file (model_path:=<z1.xml>).
+# A Unitree Z1 (without its gripper) in a MuJoCo scene, e.g., the scene of cpp-interface-mujoco-robots:
+#   <cpp-interface-mujoco-robots>/models/unitree_z1/scene.xml
+# The scene is given to the launch file (model_path:=<scene.xml>).
 /**:
   ros__parameters:
     robot_joint_names: ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]
@@ -9,3 +9,22 @@
     joint_limits_max: [150.0, 170.0, 0.0, 87.0, 77.0, 160.0]
     thread_sampling_time_sec: 0.002  # 500 Hz
     headless: false
+    window_width: 1920   # screen coordinates
+    window_height: 1080
+
+    # Reference frames, drawn in the scene (no physics), each with a sas::ObjectServer:
+    # /<node name>/<frame>/get/pose (published every reference_frames_publish_period) and
+    # /<node name>/<frame>/set/pose (moves the frame). Remove reference_frame_names to have none.
+    # Both start at the pose of the end effector at home (the flange, pointing forward).
+    reference_frame_names: ["x_desired", "x"]
+    reference_frames_publish_period: 0.01  # seconds (100 Hz)
+    reference_frames:
+      x_desired:  # e.g., the desired pose of the end effector
+        initial_pose: [0.1399, 0.0, 0.291, 0.7071, 0.0, 0.7071, 0.0]  # x, y, z, qw, qx, qy, qz (in the world)
+        axis_length: 0.1   # optional, meters (default 0.1)
+        axis_width: 0.005  # optional, meters (default 0.005)
+        opacity: 0.5       # optional, from 0 to 1 (default 1)
+        show_label: true   # optional (default true)
+      x:  # e.g., the pose of the end effector
+        initial_pose: [0.1399, 0.0, 0.291, 0.7071, 0.0, 0.7071, 0.0]
+        opacity: 1.0

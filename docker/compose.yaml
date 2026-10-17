@@ -1,0 +1,60 @@
+# sas_robot_driver_mujoco in a container, with the image of docker/Dockerfile.
+#   ur3e: a UR3e (config/ur3e.yaml), with the window of the scene.
+#   z1:   a Unitree Z1 (config/z1.yaml), with the window of the scene.
+# Both talk through ROS 2 on the host network: the topics are /ur3e/... and /z1/... (e.g., ros2 topic echo
+# /ur3e/get/joint_states, from the host or from another container).
+#
+# From this folder (xhost +local:root if the X server refuses the connection):
+#   docker compose up --build ur3e
+#   docker compose up --build z1
+# Without a window (e.g., on a server), add headless:=true to the command of the service.
+services:
+  ur3e:
+    image: sas_robot_driver_mujoco_jazzy
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      DISPLAY: $DISPLAY  # x server related
+      XAUTHORITY: /root/.Xauthority  # x server related
+      QT_X11_NO_MITSHM: 1  # x server related
+      # ROS 2 through UDP only: the shared memory of Fast DDS fails silently between processes of different users
+      # (root here, the user on the host), so the host would see the topics but not their messages.
+      FASTDDS_BUILTIN_TRANSPORTS: UDPv4
+    privileged: true  # Needed for some gpu configurations.
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix  # x server related
+      - ${XAUTHORITY:-~/.Xauthority}:/root/.Xauthority:ro  # x server related
+    network_mode: "host"
+    ipc: "host"
+    # No tty (and no stdin_open): with a tty, ros2 launch does not pass the SIGINT of docker stop (or of Ctrl+C on
+    # docker compose up) to the driver, which would be killed after the grace period instead of stopping cleanly.
+    stop_grace_period: 30s  # sigterm_timeout of the launch file.
+    command: /bin/bash -c "
+            ros2 launch sas_robot_driver_mujoco robot_launch.py name:=ur3e
+            model_path:=$${MUJOCO_ROBOTS_MODELS}/universal_robots_ur3e/scene.xml"
+
+  z1:
+    image: sas_robot_driver_mujoco_jazzy
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      DISPLAY: $DISPLAY  # x server related
+      XAUTHORITY: /root/.Xauthority  # x server related
+      QT_X11_NO_MITSHM: 1  # x server related
+      # ROS 2 through UDP only: the shared memory of Fast DDS fails silently between processes of different users
+      # (root here, the user on the host), so the host would see the topics but not their messages.
+      FASTDDS_BUILTIN_TRANSPORTS: UDPv4
+    privileged: true  # Needed for some gpu configurations.
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix  # x server related
+      - ${XAUTHORITY:-~/.Xauthority}:/root/.Xauthority:ro  # x server related
+    network_mode: "host"
+    ipc: "host"
+    # No tty (and no stdin_open): with a tty, ros2 launch does not pass the SIGINT of docker stop (or of Ctrl+C on
+    # docker compose up) to the driver, which would be killed after the grace period instead of stopping cleanly.
+    stop_grace_period: 30s  # sigterm_timeout of the launch file.
+    command: /bin/bash -c "
+            ros2 launch sas_robot_driver_mujoco robot_launch.py name:=z1
+            model_path:=$${MUJOCO_ROBOTS_MODELS}/unitree_z1/scene.xml"

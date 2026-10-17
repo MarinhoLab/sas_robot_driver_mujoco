@@ -16,7 +16,7 @@ time, so a robot in a MuJoCo scene has the same ROS 2 interface as a real robot 
 
 | RobotDriver | MuJoCo |
 |---|---|
-| `connect()` | Loads the scene (`model_path`), and opens its window (unless `headless`) |
+| `connect()` | Loads the scene (`model_path`), opens its window (unless `headless`), and adds the reference frames |
 | `initialize()` | Resets the scene (to `home_keyframe`, if given) and starts the simulation in real time |
 | `get_joint_positions()`, `get_joint_velocities()`, `get_joint_torques()` | The state of the joints `robot_joint_names` |
 | `set_target_joint_positions()`, `set_target_joint_velocities()`, `set_target_joint_torques()` | The commands of the actuators of those joints, which must be of the kind of the command (position actuators, velocity actuators, motors) |
@@ -24,8 +24,8 @@ time, so a robot in a MuJoCo scene has the same ROS 2 interface as a real robot 
 | `disconnect()` | Closes the scene |
 
 Shutdown uses `sas::ShutdownSignaler` (`sas_core/sas_shutdown_signaler.hpp`): a SIGINT stops the driver, and so does
-closing the window of the scene (through the control loop callback of `sas::RobotDriver`, which `RobotDriverROS` runs at
-each iteration).
+closing the window of the scene. The window is checked in the control loop callback of `sas::RobotDriver`, which
+`RobotDriverROS` runs at each iteration, in the thread that spins the node; the reference frames are updated there too.
 
 ## Parameters
 
@@ -37,8 +37,43 @@ each iteration).
 | `thread_sampling_time_sec` | required | Period of the control loop of `RobotDriverROS` |
 | `home_keyframe` | optional (`""`) | Keyframe to start from (`""`: the initial state of the model) |
 | `headless` | optional (`false`) | Run without a window |
+| `window_width`, `window_height` | optional (`1280`, `920`) | Size of the window, in screen coordinates |
+| `reference_frame_names` | optional (none) | The reference frames (see below) |
+| `reference_frames_publish_period` | optional (`0.01`) | Period of the `get/pose` topics of the reference frames, in seconds |
 
 The node name is the prefix of the topics (e.g., `/ur3e/get/joint_states`).
+
+## Reference frames
+
+Reference frames are drawn in the scene, without physics (e.g., to show a desired pose), and each has a
+[`sas::ObjectServer`](https://github.com/SmartArmStack/sas_common), as an object in a real setup would have:
+
+- `/<node name>/<frame>/get/pose` (`geometry_msgs/PoseStamped`): the pose of the frame in the world, published every
+  `reference_frames_publish_period`.
+- `/<node name>/<frame>/set/pose` (`geometry_msgs/PoseStamped`): moves the frame (a `sas::ObjectClient`, or any
+  publisher). The quaternion must be unit.
+
+They are listed in the parameters, each with optional settings:
+
+```yaml
+reference_frame_names: ["x_desired", "x"]
+reference_frames:
+  x_desired:
+    initial_pose: [0.2985, 0.131, 0.3033, 0.0, 0.7071, 0.7071, 0.0]  # x, y, z, qw, qx, qy, qz (default: the origin)
+    axis_length: 0.1   # meters (default 0.1)
+    axis_width: 0.005  # meters (default 0.005)
+    opacity: 0.5       # from 0 to 1 (default 1)
+    show_label: true   # (default true)
+  x:
+    initial_pose: [0.2985, 0.131, 0.3033, 0.0, 0.7071, 0.7071, 0.0]
+```
+
+To have no reference frames, leave out `reference_frame_names` (ROS 2 cannot read an empty list from a YAML file).
+
+```shell
+ros2 topic echo /ur3e/x_desired/get/pose
+ros2 topic pub --once /ur3e/x_desired/set/pose geometry_msgs/msg/PoseStamped "{pose: {position: {x: 0.1, y: 0.2, z: 0.5}, orientation: {w: 1.0}}}"
+```
 
 ## Build
 
@@ -56,7 +91,7 @@ colcon build --packages-select sas_robot_driver_mujoco && source install/setup.b
 ## Example: a UR3e
 
 With the UR3e of [cpp-interface-mujoco-robots](https://github.com/juanjqo/cpp-interface-mujoco-robots) (parameters in
-[`config/ur3e.yaml`](config/ur3e.yaml)):
+[`config/ur3e.yaml`](config/ur3e.yaml), with two reference frames, `x_desired` and `x`, at the flange at home):
 
 ```shell
 ros2 launch sas_robot_driver_mujoco robot_launch.py model_path:=<cpp-interface-mujoco-robots>/models/universal_robots_ur3e/scene.xml
@@ -70,10 +105,11 @@ ros2 topic pub --once /ur3e/set/target_joint_positions std_msgs/msg/Float64Multi
 ## Example: a Unitree Z1
 
 With the Z1 (without its gripper) of [cpp-interface-mujoco-robots](https://github.com/juanjqo/cpp-interface-mujoco-robots)
-(parameters in [`config/z1.yaml`](config/z1.yaml), chosen by `name:=z1`):
+(parameters in [`config/z1.yaml`](config/z1.yaml), chosen by `name:=z1`, with two reference frames, `x_desired` and `x`,
+at the flange at home):
 
 ```shell
-ros2 launch sas_robot_driver_mujoco robot_launch.py name:=z1 model_path:=<cpp-interface-mujoco-robots>/models/unitree_z1/z1.xml
+ros2 launch sas_robot_driver_mujoco robot_launch.py name:=z1 model_path:=<cpp-interface-mujoco-robots>/models/unitree_z1/scene.xml
 ```
 
 ```shell
@@ -89,6 +125,30 @@ ros2 topic pub --once /z1/set/target_joint_positions std_msgs/msg/Float64MultiAr
 | `name` | `ur3e` | The name of the node, which is also the prefix of its topics |
 | `config_file` | `config/<name>.yaml` of this package | The parameters of the robot (e.g., `config/ur3e.yaml`, `config/z1.yaml`) |
 | `headless` | `false` | Run without a window |
+
+## Docker
+
+[`docker/Dockerfile`](docker/Dockerfile) builds an image from `murilomarinho/sas:jazzy` with the dependencies of
+cpp-interface-mujoco (GLFW, OpenGL, EGL, DQ Robotics, and the current SAS packages), cpp-interface-mujoco itself (with
+MuJoCo 3.16), cpp-interface-mujoco-robots (its models are in `$MUJOCO_ROBOTS_MODELS`), and this package.
+[`docker/compose.yaml`](docker/compose.yaml) runs the UR3e or the Z1 example with it, on the host network, with the
+window on the display of the host:
+
+```shell
+cd docker
+xhost +local:root   # if the X server refuses the connection
+docker compose up --build ur3e   # or z1
+```
+
+The topics are reachable from the host and from other containers (e.g., `ros2 topic echo /ur3e/get/joint_states`).
+Without a display, add `headless:=true` to the command of the service. `docker compose down` (or Ctrl+C on
+`docker compose up`) stops the driver cleanly.
+
+Two settings make this work, and are needed in other compose files that run the driver:
+- `FASTDDS_BUILTIN_TRANSPORTS: UDPv4`: the shared memory of Fast DDS fails silently between processes of different
+  users (root in the container, your user on the host), which then see the topics but not their messages.
+- No `tty: true`: with a tty, `ros2 launch` does not pass the SIGINT of `docker stop` to the driver, which is then
+  killed after the grace period. The image stops its containers with SIGINT (`STOPSIGNAL SIGINT`).
 
 ## License
 

@@ -30,13 +30,16 @@ add_library(${PROJECT_NAME} SHARED
 )
 
 ament_target_dependencies(${PROJECT_NAME} PUBLIC
+    rclcpp
     sas_core
+    sas_common
     Eigen3
 )
 
-# Private: the interface is hidden behind a pointer in the header
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    dqrobotics_extensions::interface-mujoco
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC dqrobotics
+    # Private: the interface is hidden behind a pointer in the header
+    PRIVATE dqrobotics_extensions::interface-mujoco
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -46,7 +49,9 @@ target_include_directories(${PROJECT_NAME}
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(
+    rclcpp
     sas_core
+    sas_common
     Eigen3
 )
 
