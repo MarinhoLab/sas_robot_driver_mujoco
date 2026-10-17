@@ -10,6 +10,13 @@ time, so a robot in a MuJoCo scene has the same ROS 2 interface as a real robot 
 > [!WARNING]
 > This project is under active development.
 
+| [UR3e](#example-a-ur3e) | [Unitree Z1](#example-a-unitree-z1) | [UMIRobot](#example-the-umirobot) |
+|:---:|:---:|:---:|
+| ![The UR3e in the window of the driver](docs/images/ur3e.png) | ![The Unitree Z1 in the window of the driver](docs/images/z1.png) | ![The UMIRobot in the window of the driver](docs/images/umirobot.png) |
+
+The three examples in the window of the driver, at their home configuration, with the reference frames `x` (at the end
+effector) and `x_desired` (moved through its `set/pose` topic).
+
 ## How it works
 
 `sas::RobotDriverMujoco` is a `sas::RobotDriver` run by `sas::RobotDriverROS`:

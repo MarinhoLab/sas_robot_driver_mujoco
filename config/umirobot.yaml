@@ -1,0 +1,31 @@
+# The UMIRobot (https://mmmarinho.github.io/UMIRobot/) in a MuJoCo scene: the scene of this package,
+#   <sas_robot_driver_mujoco>/models/umirobot/scene.xml
+# The scene is given to the launch file (model_path:=<scene.xml>), or by the scene service of docker/compose.yaml.
+/**:
+  ros__parameters:
+    robot_joint_names: ["UMIRobot_joint_1", "UMIRobot_joint_2", "UMIRobot_joint_3", "UMIRobot_joint_4", "UMIRobot_joint_5"]
+    home_keyframe: "home"
+    joint_limits_min: [-90.0, -90.0, -90.0, -90.0, -90.0]  # degrees, the joint ranges of the model
+    joint_limits_max: [90.0, 90.0, 90.0, 90.0, 90.0]
+    thread_sampling_time_sec: 0.002  # 500 Hz
+    headless: false
+    window_width: 1920   # screen coordinates
+    window_height: 1080
+
+    # Reference frames, drawn in the scene (no physics), each with a sas::ObjectServer:
+    # /<node name>/<frame>/get/pose (published every reference_frames_publish_period) and
+    # /<node name>/<frame>/set/pose (moves the frame). Remove reference_frame_names to have none.
+    # Both start at the pose of the end effector at home (the wrist, with the arm folded forward).
+    reference_frame_names: ["x_desired", "x"]
+    reference_frames_publish_period: 0.01  # seconds (100 Hz)
+    reference_frames:
+      x_desired:  # e.g., the desired pose of the end effector
+        initial_pose: [0.1488, -0.014, 0.1657, 0.5255, 0.4731, -0.5255, 0.4731]  # x, y, z, qw, qx, qy, qz (in the world)
+        axis_length: 0.05  # optional, meters (default 0.1): the UMIRobot is small
+        axis_width: 0.003  # optional, meters (default 0.005)
+        opacity: 0.5       # optional, from 0 to 1 (default 1)
+        show_label: true   # optional (default true)
+      x:  # e.g., the pose of the end effector
+        initial_pose: [0.1488, -0.014, 0.1657, 0.5255, 0.4731, -0.5255, 0.4731]
+        axis_length: 0.05
+        axis_width: 0.003
