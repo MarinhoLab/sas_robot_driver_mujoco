@@ -6,6 +6,8 @@
   <description>A SAS robot driver for robots in MuJoCo scenes, simulated in the driver with cpp-interface-mujoco.</description>
   <maintainer email="juanjqouk@gmail.com">Juan Jose Quiroz Omana</maintainer>
   <license>LGPL-3.0-or-later</license>
+  <!-- The model of the UMIRobot (models/umirobot), made from https://github.com/mmmarinho/umirobot -->
+  <license file="models/umirobot/LICENSE">GPL-3.0-or-later</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

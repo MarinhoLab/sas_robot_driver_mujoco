@@ -117,6 +117,23 @@ ros2 topic echo /z1/get/joint_states
 ros2 topic pub --once /z1/set/target_joint_positions std_msgs/msg/Float64MultiArray "data: [0.5, 1.2, -0.8, 0.6, 0.7, 1.0]"
 ```
 
+## Example: the UMIRobot
+
+The [UMIRobot](https://mmmarinho.github.io/UMIRobot/) of Murilo M. Marinho is in this package
+([`models/umirobot`](models/umirobot), installed with it), with its parameters in
+[`config/umirobot.yaml`](config/umirobot.yaml), chosen by `name:=umirobot`:
+
+```shell
+ros2 launch sas_robot_driver_mujoco robot_launch.py name:=umirobot model_path:=$(ros2 pkg prefix sas_robot_driver_mujoco)/share/sas_robot_driver_mujoco/models/umirobot/scene.xml
+```
+
+```shell
+ros2 topic pub --once /umirobot/set/target_joint_positions std_msgs/msg/Float64MultiArray "data: [0.5, 0.6, -0.6, 0.8, 1.0]"
+```
+
+Its joints follow the DH parameters of the UMIRobot (see its [README](models/umirobot/README.md)), so the kinematics
+used with the real robot apply to the simulation.
+
 ## Launch arguments
 
 | Argument | Default | |
@@ -137,8 +154,22 @@ window on the display of the host:
 ```shell
 cd docker
 xhost +local:root   # if the X server refuses the connection
-docker compose up --build ur3e   # or z1
+docker compose up --build ur3e   # or z1, or scene (see below)
 ```
+
+The `scene` service runs any scene of the host: the folder `SCENE_DIR` is mounted on `/scene` (with the files the scene
+includes and its meshes), and the driver loads `SCENE_FILE` from it. `ROBOT_NAME` is the prefix of the topics and chooses
+the parameters of the robot (`config/<ROBOT_NAME>.yaml` of this package: `ur3e`, `z1` or `umirobot`), unless
+`CONFIG_FILE`, a YAML file in `SCENE_DIR`, is given. They are set in [`docker/.env`](docker/.env), which runs the
+UMIRobot of this package, or in the shell:
+
+```shell
+docker compose up --build scene   # the UMIRobot (docker/.env)
+SCENE_DIR=~/my_scenes SCENE_FILE=ur3e_on_a_table.xml ROBOT_NAME=ur3e docker compose up scene
+```
+
+Inside the image, the models of cpp-interface-mujoco-robots are in `/root/git/cpp-interface-mujoco-robots/models`
+(`$MUJOCO_ROBOTS_MODELS`), so a scene of the host can include them with that absolute path.
 
 The topics are reachable from the host and from other containers (e.g., `ros2 topic echo /ur3e/get/joint_states`).
 Without a display, add `headless:=true` to the command of the service. `docker compose down` (or Ctrl+C on
@@ -152,4 +183,6 @@ Two settings make this work, and are needed in other compose files that run the 
 
 ## License
 
-[LGPL-3.0-or-later](LICENSE), which supplements the [GPL-3.0](COPYING).
+[LGPL-3.0-or-later](LICENSE), which supplements the [GPL-3.0](COPYING), except the model of the UMIRobot
+([`models/umirobot`](models/umirobot)), made from [mmmarinho/umirobot](https://github.com/mmmarinho/umirobot) and under
+its license, the [GPL-3.0-or-later](models/umirobot/LICENSE), included with the permission of Murilo M. Marinho.

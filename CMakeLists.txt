@@ -105,15 +105,17 @@ unset(RCLCPP_LOCAL_BINARY_NAME)
 ##########################
 
 ################################
-# Launch/Config Block [BEGIN]  #
+# Launch/Config/Models [BEGIN]  #
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvv #
+# The models (e.g., models/umirobot/scene.xml), with their licenses
 install(DIRECTORY
     launch
     config
+    models
     DESTINATION share/${PROJECT_NAME}/
 )
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^ #
-# Launch/Config Block [END]  #
+# Launch/Config/Models [END]  #
 ##############################
 
 if(BUILD_TESTING)
