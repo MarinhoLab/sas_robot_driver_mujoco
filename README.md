@@ -120,8 +120,8 @@ ros2 launch sas_robot_driver_mujoco robot_launch.py name:=z1 model_path:=<cpp-in
 ```
 
 ```shell
-ros2 topic echo /z1/get/joint_states
 ros2 topic pub --once /z1/set/target_joint_positions std_msgs/msg/Float64MultiArray "data: [0.5, 1.2, -0.8, 0.6, 0.7, 1.0]"
+ros2 topic echo /z1/get/joint_states
 ```
 
 ## Example: the UMIRobot
