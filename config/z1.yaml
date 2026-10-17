@@ -1,0 +1,11 @@
+# A Unitree Z1 (without its gripper) in a MuJoCo scene, e.g., the model of cpp-interface-mujoco-robots:
+#   <cpp-interface-mujoco-robots>/models/unitree_z1/z1.xml
+# The scene is given to the launch file (model_path:=<z1.xml>).
+/**:
+  ros__parameters:
+    robot_joint_names: ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]
+    home_keyframe: "home"
+    joint_limits_min: [-150.0, 0.0, -165.0, -87.0, -77.0, -160.0]  # degrees, the joint ranges of the model
+    joint_limits_max: [150.0, 170.0, 0.0, 87.0, 77.0, 160.0]
+    thread_sampling_time_sec: 0.002  # 500 Hz
+    headless: false

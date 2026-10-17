@@ -1,0 +1,12 @@
+# A UR3e in a MuJoCo scene, e.g., the scene of cpp-interface-mujoco-robots:
+#   <cpp-interface-mujoco-robots>/models/universal_robots_ur3e/scene.xml
+# The scene is given to the launch file (model_path:=<scene.xml>).
+/**:
+  ros__parameters:
+    robot_joint_names: ["shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
+                        "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"]
+    home_keyframe: "home"
+    joint_limits_min: [-360.0, -360.0, -180.0, -360.0, -360.0, -360.0]  # degrees, the joint ranges of the model
+    joint_limits_max: [360.0, 360.0, 180.0, 360.0, 360.0, 360.0]
+    thread_sampling_time_sec: 0.002  # 500 Hz
+    headless: false
