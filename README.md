@@ -88,6 +88,11 @@ Prerequisites: ROS 2 Jazzy, SAS, [DQ Robotics](https://github.com/dqrobotics/cpp
 [cpp-interface-mujoco](https://github.com/juanjqo/cpp-interface-mujoco) 1.1 (installed; it is not a ROS package). If
 cpp-interface-mujoco is not installed in a system path, add its prefix to `CMAKE_PREFIX_PATH` and `LD_LIBRARY_PATH`.
 
+With the [SmartArmStack](https://github.com/SmartArmStack/smart_arm_stack_ROS2) apt repository, cpp-interface-mujoco is
+the package `libdqrobotics-interface-mujoco` (with MuJoCo), which `rosdep` installs from the `package.xml`; this driver
+is the package `ros-jazzy-sas-robot-driver-mujoco`. In a headless container, the cameras render with EGL and Mesa:
+`libegl-mesa0` and `libgl1-mesa-dri`.
+
 ```shell
 cd ~/ros2_ws/src
 git clone https://github.com/MarinhoLab/sas_robot_driver_mujoco
