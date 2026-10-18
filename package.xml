@@ -16,8 +16,11 @@
   <depend>sas_core</depend>
   <depend>sas_common</depend>
   <depend>sas_robot_driver</depend>
-  <!-- cpp-interface-mujoco (https://github.com/juanjqo/cpp-interface-mujoco) is not a ROS package:
-       install it before building this one. -->
+  <!-- cpp-interface-mujoco (https://github.com/juanjqo/cpp-interface-mujoco) is not a ROS package. Its
+       Debian package (libdqrobotics-interface-mujoco, with MuJoCo's libmujoco.so) is built by the SmartArmStack
+       apt repository, whose rosdep file maps this key; without it, install cpp-interface-mujoco from source
+       first (see the README) and skip this key with rosdep's skip-keys. -->
+  <depend>libdqrobotics-interface-mujoco</depend>
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
