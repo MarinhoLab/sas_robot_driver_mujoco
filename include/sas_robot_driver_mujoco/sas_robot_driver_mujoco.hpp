@@ -53,6 +53,7 @@ struct RobotDriverMujocoConfiguration
     std::vector<std::string> robot_joint_names;            ///< Joints of the robot, in the order of q.
     std::string home_keyframe;                             ///< Keyframe to start from ("": the initial state of the model).
     bool headless = false;                                 ///< Without a window (e.g., in a container or a CI).
+    bool gui = false;                                      ///< The GUI of the window (no effect when headless).
     int window_width = 1280;                               ///< Size of the window, in screen coordinates.
     int window_height = 920;
     std::tuple<Eigen::VectorXd, Eigen::VectorXd> joint_limits;  ///< (q_min, q_max) in radians.

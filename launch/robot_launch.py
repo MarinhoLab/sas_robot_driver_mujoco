@@ -9,6 +9,8 @@ Arguments:
     config_file  The parameters of the robot (default: config/<name>.yaml of this package, e.g.,
                  config/ur3e.yaml or config/z1.yaml).
     headless     true to run without a window (default: false).
+    gui          true to show the GUI of the window: panels, gizmos and simulation controls (default:
+                 false).
 """
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
@@ -23,6 +25,7 @@ def generate_launch_description():
     config_file = LaunchConfiguration('config_file')
     model_path = LaunchConfiguration('model_path')
     headless = LaunchConfiguration('headless')
+    gui = LaunchConfiguration('gui')
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -45,6 +48,10 @@ def generate_launch_description():
             'headless',
             default_value='false'
         ),
+        DeclareLaunchArgument(
+            'gui',
+            default_value='false'
+        ),
         Node(
             output='screen',
             emulate_tty=True,
@@ -53,6 +60,7 @@ def generate_launch_description():
             name=name,
             parameters=[config_file,
                         {'model_path': model_path,
-                         'headless': ParameterValue(headless, value_type=bool)}]
+                         'headless': ParameterValue(headless, value_type=bool),
+                         'gui': ParameterValue(gui, value_type=bool)}]
         ),
     ])

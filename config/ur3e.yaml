@@ -10,6 +10,7 @@
     joint_limits_max: [360.0, 360.0, 180.0, 360.0, 360.0, 360.0]
     thread_sampling_time_sec: 0.002  # 500 Hz
     headless: false
+    gui: false       # the GUI of the window (the launch argument gui:=true overrides it)
     window_width: 1920   # screen coordinates
     window_height: 1080
 
