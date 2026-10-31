@@ -28,6 +28,7 @@ namespace sas
 {
 
 class ObjectServer;
+class SimulatorServer;
 
 /**
  * @brief A reference frame drawn in the scene (no physics), whose pose is exposed by a
@@ -76,6 +77,9 @@ struct RobotDriverMujocoConfiguration
  * the node): closing the window of the scene signals the shutdown of the driver, each reference frame
  * moves to the last pose received on its set/pose topic, and their poses are published on their
  * get/pose topics, every reference_frames_publish_period.
+ *
+ * A sas::SimulatorServer, at the node's name, pauses and resumes the simulation (without resetting it)
+ * for a sas::SimulatorClient.
  */
 class RobotDriverMujoco: public RobotDriver
 {
@@ -84,6 +88,7 @@ private:
     std::unique_ptr<DQ_robotics_extensions::DQ_MujocoInterface> mi_;
 
     std::vector<std::unique_ptr<ObjectServer>> reference_frame_servers_;  // one per reference frame
+    std::unique_ptr<SimulatorServer> simulator_server_;                   // pauses and resumes the simulation
     std::chrono::steady_clock::time_point next_reference_frames_publish_time_;
 
     void _check_size(const Eigen::VectorXd& v, const std::string& function_name) const;

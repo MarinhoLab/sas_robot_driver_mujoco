@@ -9,6 +9,7 @@ cpp-interface-mujoco (https://github.com/juanjqo/cpp-interface-mujoco).
 #include <sas_robot_driver_mujoco/sas_robot_driver_mujoco.hpp>
 #include <dqrobotics_extensions/interfaces/mujoco/DQ_MujocoInterface.h>
 #include <sas_common/sas_object_server.hpp>
+#include <sas_common/sas_simulator_server.hpp>
 #include <set>
 #include <stdexcept>
 
@@ -54,6 +55,20 @@ RobotDriverMujoco::RobotDriverMujoco(const std::shared_ptr<rclcpp::Node>& node,
         reference_frame_servers_.push_back(
             std::make_unique<ObjectServer>(node, std::string(node->get_name()) + "/" + frame.name));
     }
+
+    // A sas::SimulatorServer: <node name>/start_simulation and .../stop_simulation pause and resume the
+    // simulation, without resetting it (initialize() resets it)
+    simulator_server_ = std::make_unique<SimulatorServer>(node, std::string(node->get_name()));
+    simulator_server_->set_start_simulation_callback([this]()
+    {
+        if (mi_)
+            mi_->start_simulation();
+    });
+    simulator_server_->set_stop_simulation_callback([this]()
+    {
+        if (mi_)
+            mi_->stop_simulation();
+    });
 
     // Run by RobotDriverROS at each iteration of its control loop
     set_control_loop_callback([this]()

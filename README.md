@@ -83,6 +83,16 @@ ros2 topic echo /ur3e/x_desired/get/pose
 ros2 topic pub --once /ur3e/x_desired/set/pose geometry_msgs/msg/PoseStamped "{pose: {position: {x: 0.1, y: 0.2, z: 0.5}, orientation: {w: 1.0}}}"
 ```
 
+## Simulator server
+
+A [`sas::SimulatorServer`](https://github.com/SmartArmStack/sas_common) at the node's name pauses and resumes the
+simulation, without resetting it, as a simulator in a real setup would (e.g., with a `sas::SimulatorClient`):
+
+```shell
+ros2 service call /ur3e/stop_simulation std_srvs/srv/Trigger
+ros2 service call /ur3e/start_simulation std_srvs/srv/Trigger
+```
+
 ## Build
 
 Prerequisites: ROS 2 Jazzy, SAS, [DQ Robotics](https://github.com/dqrobotics/cpp), and
