@@ -23,7 +23,7 @@ effector) and `x_desired` (moved through its `set/pose` topic).
 
 | RobotDriver | MuJoCo |
 |---|---|
-| `connect()` | Loads the scene (`model_path`), opens its window (unless `headless`), and adds the reference frames |
+| `connect()` | Loads the scene (`model_path`), opens its window (unless `headless`; with the GUI if `gui`), and adds the reference frames |
 | `initialize()` | Resets the scene (to `home_keyframe`, if given) and starts the simulation in real time |
 | `get_joint_positions()`, `get_joint_velocities()`, `get_joint_torques()` | The state of the joints `robot_joint_names` |
 | `set_target_joint_positions()`, `set_target_joint_velocities()`, `set_target_joint_torques()` | The commands of the actuators of those joints, which must be of the kind of the command (position actuators, velocity actuators, motors) |
@@ -44,6 +44,7 @@ closing the window of the scene. The window is checked in the control loop callb
 | `thread_sampling_time_sec` | required | Period of the control loop of `RobotDriverROS` |
 | `home_keyframe` | optional (`""`) | Keyframe to start from (`""`: the initial state of the model) |
 | `headless` | optional (`false`) | Run without a window |
+| `gui` | optional (`false`) | Show the GUI of the window (see [GUI](#gui)) |
 | `window_width`, `window_height` | optional (`1280`, `920`) | Size of the window, in screen coordinates |
 | `reference_frame_names` | optional (none) | The reference frames (see below) |
 | `reference_frames_publish_period` | optional (`0.01`) | Period of the `get/pose` topics of the reference frames, in seconds |
@@ -95,7 +96,7 @@ ros2 service call /ur3e/start_simulation std_srvs/srv/Trigger
 ## Build
 
 Prerequisites: ROS 2 Jazzy, SAS, [DQ Robotics](https://github.com/dqrobotics/cpp), and
-[cpp-interface-mujoco](https://github.com/juanjqo/cpp-interface-mujoco) 1.1 (installed; it is not a ROS package). If
+[cpp-interface-mujoco](https://github.com/juanjqo/cpp-interface-mujoco) 1.2 (installed; it is not a ROS package). If
 cpp-interface-mujoco is not installed in a system path, add its prefix to `CMAKE_PREFIX_PATH` and `LD_LIBRARY_PATH`.
 
 ```shell
@@ -159,6 +160,28 @@ used with the real robot apply to the simulation.
 | `name` | `ur3e` | The name of the node, which is also the prefix of its topics |
 | `config_file` | `config/<name>.yaml` of this package | The parameters of the robot (e.g., `config/ur3e.yaml`, `config/z1.yaml`) |
 | `headless` | `false` | Run without a window |
+| `gui` | `false` | Show the GUI of the window (see [GUI](#gui)) |
+
+## GUI
+
+With `gui:=true`, the window shows the GUI of cpp-interface-mujoco: panels around the 3D view (the bodies of the scene,
+the pose of the selected body, the joints, the sensors, the visualization options), simulation controls, gizmos to move
+bodies, and Ctrl + drag to push them (see its [README](https://github.com/juanjqo/cpp-interface-mujoco#gui)):
+
+```shell
+ros2 launch sas_robot_driver_mujoco robot_launch.py model_path:=<scene.xml> gui:=true
+```
+
+In the driver:
+
+- Pause stops the simulation for the clients too: the joint states stay the same, and the commands are applied when
+  it plays again.
+- Reset (and Backspace) goes to the initial configuration of the model, not to `home_keyframe`; use Simulation > Reset
+  to keyframe for that. The keys act whenever the window has the focus.
+- The joint sliders and the gizmos move the robot only while they are dragged: then the actuators follow the commands
+  of the clients again. Ctrl + drag pushes the robot, e.g., to test a controller against disturbances.
+
+The GUI needs cpp-interface-mujoco built with it (the default); otherwise `gui:=true` stops the driver with an error.
 
 ## Docker
 

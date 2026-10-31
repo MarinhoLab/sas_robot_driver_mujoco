@@ -119,14 +119,17 @@ void RobotDriverMujoco::_check_size(const Eigen::VectorXd& v, const std::string&
 }
 
 /**
- * @brief RobotDriverMujoco::connect loads the scene (and opens its window, unless headless), and adds
- *        the reference frames, at their initial poses.
+ * @brief RobotDriverMujoco::connect loads the scene (and opens its window, unless headless, with the
+ *        GUI if gui), and adds the reference frames, at their initial poses.
+ * @throws std::runtime_error If gui is set and cpp-interface-mujoco was built without the GUI
  */
 void RobotDriverMujoco::connect()
 {
     mi_ = std::make_unique<DQ_MujocoInterface>(configuration_.headless ? DQ_MujocoInterface::RENDERING::HEADLESS
                                                                        : DQ_MujocoInterface::RENDERING::WINDOW,
                                                "", configuration_.window_width, configuration_.window_height);
+    if (configuration_.gui)
+        mi_->set_gui_enabled(true);
     mi_->load_model(configuration_.model_path);
     mi_->get_joint_positions(configuration_.robot_joint_names);  // throws if a joint is not in the scene
     for (const auto& frame : configuration_.reference_frames)

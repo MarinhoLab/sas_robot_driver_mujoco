@@ -17,7 +17,7 @@ find_package(sas_common REQUIRED)
 find_package(sas_robot_driver REQUIRED)
 # https://github.com/juanjqo/cpp-interface-mujoco (not a ROS package: install it first). If it is not
 # installed in a system path, add its prefix to CMAKE_PREFIX_PATH.
-find_package(dqrobotics-interface-mujoco 1.1 REQUIRED)
+find_package(dqrobotics-interface-mujoco 1.2 REQUIRED)  # 1.2: the GUI (set_gui_enabled())
 
 ####################################
 # CPP Shared Library Block [BEGIN] #

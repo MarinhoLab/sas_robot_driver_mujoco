@@ -79,6 +79,7 @@ int main(int argc, char** argv)
         sas::get_ros_parameter(node, "robot_joint_names", configuration.robot_joint_names);
         sas::get_ros_optional_parameter(node, "home_keyframe", configuration.home_keyframe, std::string(""));
         sas::get_ros_optional_parameter(node, "headless", configuration.headless, false);
+        sas::get_ros_optional_parameter(node, "gui", configuration.gui, false);
         int64_t window_width, window_height;
         sas::get_ros_optional_parameter(node, "window_width", window_width, int64_t{1280});
         sas::get_ros_optional_parameter(node, "window_height", window_height, int64_t{920});
